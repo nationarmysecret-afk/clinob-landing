@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-clinob-green: #16a34a;
+  --color-clinob-green-light: #dcfce7;
+  --color-clinob-green-dark: #15803d;
+  --color-clinob-blue: #0ea5e9;
+  --color-clinob-blue-light: #e0f2fe;
+  --color-clinob-blue-dark: #0284c7;
+  --color-clinob-white: #ffffff;
+  --color-clinob-bg: #f0fdf4;
+  --color-clinob-text: #1e293b;
+  --color-clinob-text-light: #64748b;
+  --font-sans: var(--font-geist-sans);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-clinob-white);
+  color: var(--color-clinob-text);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}

@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SiteContent {
+  id          String   @id @default(uuid())
+  section     String   @unique // "hero", "about", "contact"
+  title       String?
+  subtitle    String?
+  description String?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+model Doctor {
+  id         String   @id @default(uuid())
+  sortOrder  Int      @default(0)
+  firstName  String
+  lastName   String
+  specialty  String
+  bio        String
+  photoUrl   String?  // path to uploaded photo
+  linkUrl    String   @default("https://google.com")
+  isActive   Boolean  @default(true)
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+}
+
+model ContactInfo {
+  id    String @id @default(uuid())
+  key   String @unique // "address", "phone", "email"
+  value String
+}
