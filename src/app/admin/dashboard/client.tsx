@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import Cropper from "react-easy-crop";
+import type { Area } from "react-easy-crop";
 
 interface SiteContent {
   id: string;
@@ -76,7 +78,105 @@ export function DashboardClient({ content: initialContent, doctors: initialDocto
   const [editingDoctor, setEditingDoctor] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
+  function CropModal({
+  open,
+  imageUrl,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean;
+  imageUrl: string;
+  onConfirm: (croppedArea: Area, croppedAreaPixels: Area) => void;
+  onCancel: () => void;
+}) {
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+
+  const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70">
+      <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-xl font-semibold text-clinob-text">Recortar foto</h3>
+          <button
+            onClick={onCancel}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            ✕
+          </button>
+        </div>
+        
+        <p className="mb-4 text-sm text-clinob-text-light">
+          Arrastra la imagen para ajustar el recorte. El área de recorte es circular y se redimensionará a 400x400 píxeles.
+        </p>
+
+        <div className="relative h-96 w-full overflow-hidden rounded-lg bg-gray-100">
+          <Cropper
+            image={imageUrl}
+            crop={crop}
+            zoom={zoom}
+            aspect={1}
+            onCropChange={setCrop}
+            onZoomChange={setZoom}
+            onCropComplete={onCropComplete}
+            cropShape="round"
+            showGrid={false}
+            classes={{
+              containerClassName: "relative",
+              cropAreaClassName: "border-2 border-white shadow-lg",
+            }}
+          />
+        </div>
+
+        <div className="mt-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">Zoom:</span>
+              <input
+                type="range"
+                min="1"
+                max="3"
+                step="0.1"
+                value={zoom}
+                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                className="w-32 accent-clinob-green"
+              />
+              <span className="text-sm text-gray-600">{zoom.toFixed(1)}x</span>
+            </div>
+          </div>
+          
+          <div className="flex gap-3">
+            <button
+              onClick={onCancel}
+              className="rounded-lg bg-gray-100 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-200"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={() => croppedAreaPixels && onConfirm(croppedAreaPixels, croppedAreaPixels)}
+              disabled={!croppedAreaPixels}
+              className="rounded-lg bg-clinob-green px-5 py-2.5 text-sm font-medium text-white hover:bg-clinob-green-dark disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Confirmar recorte
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
+  const [croppingPhoto, setCroppingPhoto] = useState<{
+    doctorId: string;
+    tempUrl: string;
+  } | null>(null);
+  const [croppingLoading, setCroppingLoading] = useState(false);
 
   async function reload() {
     try {
@@ -186,7 +286,50 @@ export function DashboardClient({ content: initialContent, doctors: initialDocto
       
       const { url } = await response.json();
       
-      // Actualizar el doctor con la nueva photoUrl
+      // Abrir modal de recorte en lugar de actualizar directamente
+      setCroppingPhoto({
+        doctorId,
+        tempUrl: url,
+      });
+      
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      setMessage(`❌ ${error instanceof Error ? error.message : "Error al subir la foto"}`);
+    } finally {
+      setUploadingPhoto(null);
+    }
+  }
+
+  async function handleCropComplete(croppedAreaPixels: Area) {
+    if (!croppingPhoto) return;
+    
+    setCroppingLoading(true);
+    
+    try {
+      const { doctorId, tempUrl } = croppingPhoto;
+      
+      // Enviar las coordenadas de recorte al servidor
+      const response = await fetch("/api/crop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tempUrl,
+          x: Math.round(croppedAreaPixels.x),
+          y: Math.round(croppedAreaPixels.y),
+          width: Math.round(croppedAreaPixels.width),
+          height: Math.round(croppedAreaPixels.height),
+        }),
+        credentials: "include",
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Error al procesar el recorte");
+      }
+      
+      const { url } = await response.json();
+      
+      // Actualizar el doctor con la URL recortada
       const updateResponse = await fetch(`/api/doctors/${doctorId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -195,18 +338,18 @@ export function DashboardClient({ content: initialContent, doctors: initialDocto
       });
       
       if (updateResponse.ok) {
-        setMessage("✅ Foto actualizada");
+        setMessage("✅ Foto recortada y actualizada");
         reload();
+        setCroppingPhoto(null);
       } else {
         setMessage("❌ Error al actualizar la foto del doctor");
       }
+      
     } catch (error) {
-      console.error("Error uploading photo:", error);
-      setMessage(`❌ ${error instanceof Error ? error.message : "Error al subir la foto"}`);
+      console.error("Error processing crop:", error);
+      setMessage(`❌ ${error instanceof Error ? error.message : "Error al procesar el recorte"}`);
     } finally {
-      setUploadingPhoto(null);
-    }
-  }
+      }
 
   async function removeDoctor(id: string) {
     setLoading(`delete-${id}`);
@@ -216,8 +359,6 @@ export function DashboardClient({ content: initialContent, doctors: initialDocto
     else setMessage("❌ Error al eliminar doctor");
     setLoading(null);
   }
-
-  return (
     <div className="space-y-10">
       <h1 className="text-2xl font-bold text-clinob-text">Panel de Administración</h1>
 
@@ -227,6 +368,13 @@ export function DashboardClient({ content: initialContent, doctors: initialDocto
         message="¿Estás seguro de que deseas eliminar este doctor? Esta acción no se puede deshacer."
         onConfirm={() => confirmDelete && removeDoctor(confirmDelete)}
         onCancel={() => { setConfirmDelete(null); setLoading(null); }}
+      />
+
+      <CropModal
+        open={croppingPhoto !== null}
+        imageUrl={croppingPhoto?.tempUrl || ""}
+        onConfirm={handleCropComplete}
+        onCancel={() => setCroppingPhoto(null)}
       />
 
       {message && (

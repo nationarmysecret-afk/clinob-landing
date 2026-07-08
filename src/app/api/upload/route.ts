@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
+import { writeFile, mkdir, unlink } from "fs/promises";
 import { join } from "path";
 import { verifyToken, getCookieName } from "@/lib/auth";
 import { cookies } from "next/headers";
-import { Jimp } from "jimp";
 
 function unauthorized() {
   return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -30,27 +29,26 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Optimizar imagen con Jimp (pure JS, sin dependencias nativas)
-    const image = await Jimp.read(buffer);
-    image.cover({ w: 400, h: 400 });
-
-    // Crear directorio para doctores si no existe
-    const doctorsDir = join(process.cwd(), "public", "uploads", "doctors");
-    await mkdir(doctorsDir, { recursive: true });
+    // Crear directorio temporal si no existe
+    const tempDir = join(process.cwd(), "public", "uploads", "temp");
+    await mkdir(tempDir, { recursive: true });
 
     // Generar nombre único
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).slice(2, 8);
-    const filename = `${timestamp}-${randomStr}.jpg`;
-    const filepath = join(doctorsDir, filename);
+    const extension = file.type === "image/jpeg" ? "jpg" : 
+                     file.type === "image/png" ? "png" : 
+                     file.type === "image/webp" ? "webp" : 
+                     file.type === "image/gif" ? "gif" : "jpg";
+    const filename = `${timestamp}-${randomStr}.${extension}`;
+    const filepath = join(tempDir, filename);
 
-    // Guardar como JPEG con calidad 80
-    const optimizedBuffer = await image.getBuffer("image/jpeg", { quality: 80 });
-    await writeFile(filepath, optimizedBuffer);
+    // Guardar la imagen original sin modificar
+    await writeFile(filepath, buffer);
 
-    return NextResponse.json({ url: `/uploads/doctors/${filename}` });
+    return NextResponse.json({ url: `/uploads/temp/${filename}` });
   } catch (error) {
-    console.error("Error al procesar la imagen:", error);
-    return NextResponse.json({ error: "Error al procesar la imagen" }, { status: 500 });
+    console.error("Error al guardar la imagen:", error);
+    return NextResponse.json({ error: "Error al guardar la imagen" }, { status: 500 });
   }
 }
