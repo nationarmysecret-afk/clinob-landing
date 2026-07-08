@@ -349,7 +349,9 @@ const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
       console.error("Error processing crop:", error);
       setMessage(`❌ ${error instanceof Error ? error.message : "Error al procesar el recorte"}`);
     } finally {
-      }
+      setCroppingLoading(false);
+    }
+  }
 
   async function removeDoctor(id: string) {
     setLoading(`delete-${id}`);
@@ -359,6 +361,7 @@ const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
     else setMessage("❌ Error al eliminar doctor");
     setLoading(null);
   }
+  return (
     <div className="space-y-10">
       <h1 className="text-2xl font-bold text-clinob-text">Panel de Administración</h1>
 

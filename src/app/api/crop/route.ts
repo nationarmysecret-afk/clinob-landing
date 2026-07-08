@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFile, writeFile, mkdir, unlink } from "fs/promises";
-import { join, basename } from "path";
-import { verifyToken, getCookieName } from "@/lib/auth";
 import { cookies } from "next/headers";
-import { Jimp } from "jimp";
+import { verifyToken, getCookieName } from "@/lib/auth";
+import Jimp from "jimp";
+import path from "path";
+import { unlink, mkdir } from "fs/promises";
 
 function unauthorized() {
   return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -13,59 +13,49 @@ export async function POST(request: NextRequest) {
   const cookieStore = await cookies();
   if (!verifyToken(cookieStore.get(getCookieName())?.value)) return unauthorized();
 
+  const { tempUrl, x, y, width, height } = await request.json();
+
+  if (!tempUrl || x === undefined || y === undefined || !width || !height) {
+    return NextResponse.json({ error: "Faltan parámetros" }, { status: 400 });
+  }
+
+  // Build path to temp file
+  const tempPath = path.join(process.cwd(), "public", tempUrl);
+  // Security: ensure it's within public/uploads/temp
+  const normalizedTempPath = path.normalize(tempPath);
+  const allowedBase = path.join(process.cwd(), "public", "uploads", "temp");
+  if (!normalizedTempPath.startsWith(allowedBase)) {
+    return NextResponse.json({ error: "Ruta no permitida" }, { status: 400 });
+  }
+
   try {
-    const body = await request.json();
-    const { tempUrl, x, y, width, height } = body;
+    const image = await Jimp.read(normalizedTempPath);
 
-    if (!tempUrl || typeof x !== "number" || typeof y !== "number" || typeof width !== "number" || typeof height !== "number") {
-      return NextResponse.json({ error: "Parámetros inválidos" }, { status: 400 });
-    }
-
-    // Extraer el nombre del archivo de la URL temporal
-    const filename = basename(tempUrl);
-    const tempPath = join(process.cwd(), "public", "uploads", "temp", filename);
-    
-    // Verificar que el archivo temporal existe
-    try {
-      await readFile(tempPath);
-    } catch {
-      return NextResponse.json({ error: "Imagen temporal no encontrada" }, { status: 404 });
-    }
-
-    // Leer la imagen temporal con Jimp
-    const image = await Jimp.read(tempPath);
-    
-    // Recortar la imagen según las coordenadas proporcionadas
+    // Crop
     image.crop(x, y, width, height);
-    
-    // Redimensionar a 400x400 manteniendo la proporción (cover)
-    image.cover({ w: 400, h: 400 });
-    
-    // Crear directorio para doctores si no existe
-    const doctorsDir = join(process.cwd(), "public", "uploads", "doctors");
+
+    // Resize to 400x400
+    image.resize(400, 400);
+
+    // Ensure doctors directory exists
+    const doctorsDir = path.join(process.cwd(), "public", "uploads", "doctors");
     await mkdir(doctorsDir, { recursive: true });
-    
-    // Generar nombre único para la imagen final
-    const timestamp = Date.now();
-    const randomStr = Math.random().toString(36).slice(2, 8);
-    const finalFilename = `${timestamp}-${randomStr}.jpg`;
-    const finalPath = join(doctorsDir, finalFilename);
-    
-    // Guardar como JPEG con calidad 80
-    const buffer = await image.getBuffer("image/jpeg", { quality: 80 });
-    await writeFile(finalPath, buffer);
-    
-    // Eliminar la imagen temporal
-    try {
-      await unlink(tempPath);
-    } catch (error) {
-      console.warn("No se pudo eliminar la imagen temporal:", error);
-    }
-    
-    return NextResponse.json({ url: `/uploads/doctors/${finalFilename}` });
-    
+
+    // Generate unique filename
+    const ext = path.extname(tempUrl) || ".jpg";
+    const uniqueName = `doctor-${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
+    const outputPath = path.join(doctorsDir, uniqueName);
+
+    // Save as JPEG (or keep original format? We'll use JPEG for consistency)
+    await image.writeAsync(outputPath);
+
+    // Delete temp file
+    await unlink(normalizedTempPath);
+
+    const url = `/uploads/doctors/${uniqueName}`;
+    return NextResponse.json({ url });
   } catch (error) {
-    console.error("Error al procesar el recorte:", error);
+    console.error("Error processing crop:", error);
     return NextResponse.json({ error: "Error al procesar el recorte" }, { status: 500 });
   }
 }
