@@ -45,10 +45,10 @@ export function Hero() {
             Conoce a nuestros especialistas
           </a>
           <a
-            href="#contact"
+            href="#about"
             className="rounded-full border-2 border-clinob-accent px-8 py-3.5 text-sm font-semibold text-clinob-accent-dark transition-all hover:bg-clinob-accent hover:text-white"
           >
-            Contáctanos
+            Más sobre nosotros
           </a>
         </div>
       </div>

@@ -32,9 +32,12 @@ export function Doctors() {
     <section className="bg-clinob-bg py-20 md:py-28" id="doctors">
       <div className="mx-auto max-w-6xl px-6">
         <h2 className="text-center text-3xl font-bold text-clinob-text md:text-4xl">
-          Nuestro equipo de{" "}
-          <span className="text-clinob-primary">especialistas</span>
+          Agenda con Nuestros{" "}
+          <span className="text-clinob-primary">Especialistas</span>
         </h2>
+        <p className="text-center mt-2 text-gray-400 text-sm md:text-base">
+          Selecciona un especialista para agendar tu cita
+        </p>
         <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-gradient-to-r from-clinob-primary to-clinob-accent" />
 
         {/* Grid layout: varies by count */}
