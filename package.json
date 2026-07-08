@@ -14,7 +14,8 @@
     "jimp": "^1.6.1",
     "next": "^16",
     "react": "^19",
-    "react-dom": "^19"
+    "react-dom": "^19",
+    "react-easy-crop": "^6.2.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

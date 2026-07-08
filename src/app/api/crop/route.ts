@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyToken, getCookieName } from "@/lib/auth";
-import Jimp from "jimp";
+import { Jimp } from "jimp";
 import path from "path";
-import { unlink, mkdir } from "fs/promises";
+import { writeFile, unlink, mkdir } from "fs/promises";
 
 function unauthorized() {
   return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -32,10 +32,10 @@ export async function POST(request: NextRequest) {
     const image = await Jimp.read(normalizedTempPath);
 
     // Crop
-    image.crop(x, y, width, height);
+    image.crop({ x, y, w: width, h: height });
 
     // Resize to 400x400
-    image.resize(400, 400);
+    image.resize({ w: 400, h: 400 });
 
     // Ensure doctors directory exists
     const doctorsDir = path.join(process.cwd(), "public", "uploads", "doctors");
@@ -46,8 +46,9 @@ export async function POST(request: NextRequest) {
     const uniqueName = `doctor-${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
     const outputPath = path.join(doctorsDir, uniqueName);
 
-    // Save as JPEG (or keep original format? We'll use JPEG for consistency)
-    await image.writeAsync(outputPath);
+    // Save as JPEG
+    const buffer = await image.getBuffer("image/jpeg");
+    await writeFile(outputPath, buffer);
 
     // Delete temp file
     await unlink(normalizedTempPath);
