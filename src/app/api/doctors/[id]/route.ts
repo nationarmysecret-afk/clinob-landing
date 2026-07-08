@@ -23,6 +23,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       linkUrl: body.linkUrl,
       sortOrder: body.sortOrder,
       isActive: body.isActive,
+      photoUrl: body.photoUrl, // Aceptar photoUrl del body
     },
   });
   return NextResponse.json(doctor);

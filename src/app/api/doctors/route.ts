@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
       lastName: body.lastName,
       specialty: body.specialty,
       bio: body.bio,
+      photoUrl: body.photoUrl, // Aceptar photoUrl
       linkUrl: body.linkUrl || "https://google.com",
       sortOrder: body.sortOrder || 0,
     },

@@ -3,6 +3,7 @@ import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { verifyToken, getCookieName } from "@/lib/auth";
 import { cookies } from "next/headers";
+import sharp from "sharp";
 
 function unauthorized() {
   return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -19,22 +20,41 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "No se envió ningún archivo" }, { status: 400 });
   }
 
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-
-  const uploadsDir = join(process.cwd(), "public", "uploads");
-  await mkdir(uploadsDir, { recursive: true });
-
-  const originalName = file.name;
-  const ext = originalName.split(".").pop()?.toLowerCase() || "jpg";
-  const allowedExtensions = new Set(["jpg", "jpeg", "png", "webp", "gif", "svg"]);
-  if (!allowedExtensions.has(ext)) {
+  // Validar tipo de archivo
+  const allowedMimeTypes = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]);
+  if (!allowedMimeTypes.has(file.type)) {
     return NextResponse.json({ error: "Formato de imagen no permitido" }, { status: 400 });
   }
 
-  const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const filepath = `${uploadsDir}/${filename}`;
-  await writeFile(filepath, buffer);
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
 
-  return NextResponse.json({ url: `/uploads/${filename}` });
+  // Optimizar imagen con sharp
+  try {
+    const optimizedImage = await sharp(buffer)
+      .resize(400, 400, {
+        fit: 'cover',
+        position: 'center'
+      })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    // Crear directorio para doctores si no existe
+    const doctorsDir = join(process.cwd(), "public", "uploads", "doctors");
+    await mkdir(doctorsDir, { recursive: true });
+
+    // Generar nombre único para el archivo
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).slice(2, 8);
+    const filename = `${timestamp}-${randomStr}.webp`;
+    const filepath = join(doctorsDir, filename);
+    
+    // Guardar archivo optimizado
+    await writeFile(filepath, optimizedImage);
+
+    return NextResponse.json({ url: `/uploads/doctors/${filename}` });
+  } catch (error) {
+    console.error("Error al procesar la imagen:", error);
+    return NextResponse.json({ error: "Error al procesar la imagen" }, { status: 500 });
+  }
 }

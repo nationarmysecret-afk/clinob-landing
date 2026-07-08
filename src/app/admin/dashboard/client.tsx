@@ -76,6 +76,7 @@ export function DashboardClient({ content: initialContent, doctors: initialDocto
   const [editingDoctor, setEditingDoctor] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
 
   async function reload() {
     try {
@@ -161,6 +162,50 @@ export function DashboardClient({ content: initialContent, doctors: initialDocto
     if (ok) { setMessage("✅ Doctor actualizado"); setEditingDoctor(null); reload(); }
     else setMessage("❌ Error al actualizar doctor");
     setLoading(null);
+  }
+
+  async function uploadDoctorPhoto(doctorId: string, file: File) {
+    if (!file) return;
+    
+    setUploadingPhoto(doctorId);
+    
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Error al subir la imagen");
+      }
+      
+      const { url } = await response.json();
+      
+      // Actualizar el doctor con la nueva photoUrl
+      const updateResponse = await fetch(`/api/doctors/${doctorId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ photoUrl: url }),
+        credentials: "include",
+      });
+      
+      if (updateResponse.ok) {
+        setMessage("✅ Foto actualizada");
+        reload();
+      } else {
+        setMessage("❌ Error al actualizar la foto del doctor");
+      }
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      setMessage(`❌ ${error instanceof Error ? error.message : "Error al subir la foto"}`);
+    } finally {
+      setUploadingPhoto(null);
+    }
   }
 
   async function removeDoctor(id: string) {
@@ -282,6 +327,67 @@ export function DashboardClient({ content: initialContent, doctors: initialDocto
             <div key={doc.id} className="rounded-xl bg-white p-5 shadow-sm">
               {editingDoctor === doc.id ? (
                 <form onSubmit={(e) => updateExistingDoctor(doc.id, e)} className="space-y-2">
+                  {/* Preview de la foto actual */}
+                  <div className="flex items-center justify-center mb-3">
+                    {doc.photoUrl ? (
+                      <div className="relative h-24 w-24 overflow-hidden rounded-full">
+                        <img
+                          src={doc.photoUrl}
+                          alt={`${doc.firstName} ${doc.lastName}`}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-clinob-green/20 to-clinob-blue/20 text-2xl font-bold text-clinob-green-dark">
+                        {doc.firstName[0]}{doc.lastName[0]}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Input para subir nueva foto */}
+                  <div className="mb-3">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Subir nueva foto</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="file"
+                        id={`photo-${doc.id}`}
+                        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            uploadDoctorPhoto(doc.id, file);
+                          }
+                        }}
+                      />
+                      <label
+                        htmlFor={`photo-${doc.id}`}
+                        className={`flex-1 text-center rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium cursor-pointer ${
+                          uploadingPhoto === doc.id 
+                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed' 
+                            : 'bg-white text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        {uploadingPhoto === doc.id ? 'Subiendo...' : 'Seleccionar imagen'}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById(`photo-${doc.id}`)?.click()}
+                        disabled={uploadingPhoto === doc.id}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-medium ${
+                          uploadingPhoto === doc.id
+                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                            : 'bg-clinob-green text-white hover:bg-clinob-green-dark'
+                        }`}
+                      >
+                        {uploadingPhoto === doc.id ? 'Subiendo...' : 'Subir'}
+                      </button>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Formatos: JPG, PNG, WebP, GIF • Máx: 5MB
+                    </p>
+                  </div>
+
                   <input name="firstName" defaultValue={doc.firstName} className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" />
                   <input name="lastName" defaultValue={doc.lastName} className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" />
                   <input name="specialty" defaultValue={doc.specialty} className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" />
@@ -297,9 +403,19 @@ export function DashboardClient({ content: initialContent, doctors: initialDocto
               ) : (
                 <div>
                   <div className="mb-2 flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-clinob-green/20 to-clinob-blue/20 text-sm font-bold text-clinob-green-dark">
-                      {doc.firstName[0]}{doc.lastName[0]}
-                    </div>
+                    {doc.photoUrl ? (
+                      <div className="relative h-12 w-12 overflow-hidden rounded-full">
+                        <img
+                          src={doc.photoUrl}
+                          alt={`${doc.firstName} ${doc.lastName}`}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-clinob-green/20 to-clinob-blue/20 text-sm font-bold text-clinob-green-dark">
+                        {doc.firstName[0]}{doc.lastName[0]}
+                      </div>
+                    )}
                     <div>
                       <p className="font-semibold text-clinob-text">{doc.firstName} {doc.lastName}</p>
                       <p className="text-xs text-clinob-green-dark">{doc.specialty}</p>
