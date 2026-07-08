@@ -145,7 +145,7 @@ export function DashboardClient({ content: initialContent, doctors: initialDocto
                 step="0.1"
                 value={zoom}
                 onChange={(e) => setZoom(parseFloat(e.target.value))}
-                className="w-32 accent-clinob-green"
+                className="w-32 accent-clinob-primary"
               />
               <span className="text-sm text-gray-600">{zoom.toFixed(1)}x</span>
             </div>
@@ -161,7 +161,7 @@ export function DashboardClient({ content: initialContent, doctors: initialDocto
             <button
               onClick={() => croppedAreaPixels && onConfirm(croppedAreaPixels, croppedAreaPixels)}
               disabled={!croppedAreaPixels}
-              className="rounded-lg bg-clinob-green px-5 py-2.5 text-sm font-medium text-white hover:bg-clinob-green-dark disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg bg-clinob-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-clinob-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirmar recorte
             </button>
@@ -393,7 +393,7 @@ const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
         <div className="grid gap-6 md:grid-cols-2">
           {content.map((s) => (
             <div key={s.id} className="rounded-xl bg-white p-5 shadow-sm">
-              <h3 className="mb-3 text-lg font-semibold text-clinob-green-dark capitalize">
+              <h3 className="mb-3 text-lg font-semibold text-clinob-primary-dark capitalize">
                 {s.section === "hero" ? "Hero (Portada)" : "Sobre Nosotros"}
               </h3>
 
@@ -403,7 +403,7 @@ const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
                   <input name="subtitle" defaultValue={s.subtitle || ""} className="w-full rounded-lg border px-3 py-2 text-sm border-gray-200" placeholder="Subtítulo" />
                   <textarea name="description" defaultValue={s.description || ""} className="w-full rounded-lg border px-3 py-2 text-sm border-gray-200" rows={4} placeholder="Descripción" />
                   <div className="flex gap-2">
-                    <button type="submit" disabled={loading === "section"} className="rounded-lg bg-clinob-green px-4 py-2 text-sm font-medium text-white hover:bg-clinob-green-dark disabled:opacity-50">
+                    <button type="submit" disabled={loading === "section"} className="rounded-lg bg-clinob-primary px-4 py-2 text-sm font-medium text-white hover:bg-clinob-primary-dark disabled:opacity-50">
                       {loading === "section" ? "Guardando..." : "Guardar"}
                     </button>
                     <button type="button" onClick={() => setEditingSection(null)} className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200">Cancelar</button>
@@ -414,7 +414,7 @@ const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
                   {s.title && <p className="text-sm"><span className="font-medium">Título:</span> {s.title}</p>}
                   {s.subtitle && <p className="mt-1 text-sm"><span className="font-medium">Subtítulo:</span> {s.subtitle}</p>}
                   {s.description && <p className="mt-1 text-sm text-clinob-text-light line-clamp-3">{s.description}</p>}
-                  <button type="button" onClick={() => setEditingSection(s.id)} className="mt-3 text-sm font-medium text-clinob-blue-dark hover:underline">Editar</button>
+                  <button type="button" onClick={() => setEditingSection(s.id)} className="mt-3 text-sm font-medium text-clinob-primary-dark hover:underline">Editar</button>
                 </div>
               )}
             </div>
@@ -436,7 +436,7 @@ const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
                   <input type="hidden" name="key" value={key} />
                   <input type="text" name="value" defaultValue={value} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" autoFocus />
                   <div className="flex gap-2">
-                    <button type="submit" disabled={loading === "contact"} className="rounded-lg bg-clinob-green px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">
+                    <button type="submit" disabled={loading === "contact"} className="rounded-lg bg-clinob-primary px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">
                       {loading === "contact" ? "Guardando..." : "Guardar"}
                     </button>
                     <button type="button" onClick={() => setEditingContact(null)} className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600">Cancelar</button>
@@ -445,7 +445,7 @@ const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
               ) : (
                 <div>
                   <p className="text-sm text-clinob-text-light">{value}</p>
-                  <button type="button" onClick={() => setEditingContact(key)} className="mt-2 text-xs font-medium text-clinob-blue-dark hover:underline">Editar</button>
+                  <button type="button" onClick={() => setEditingContact(key)} className="mt-2 text-xs font-medium text-clinob-primary-dark hover:underline">Editar</button>
                 </div>
               )}
             </div>
@@ -459,14 +459,14 @@ const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
           <h2 className="mb-4 text-xl font-semibold text-clinob-text">Doctores ({doctors.length})</h2>
 
           <details className="rounded-xl bg-white p-5 shadow-sm">
-            <summary className="cursor-pointer font-medium text-clinob-green hover:text-clinob-green-dark">+ Agregar nuevo doctor</summary>
+            <summary className="cursor-pointer font-medium text-clinob-primary hover:text-clinob-primary-dark">+ Agregar nuevo doctor</summary>
             <form onSubmit={addNewDoctor} className="mt-4 grid gap-4 md:grid-cols-2">
               <input type="text" name="firstName" required placeholder="Nombre" className="rounded-lg border border-gray-200 px-3 py-2 text-sm" />
               <input type="text" name="lastName" required placeholder="Apellido" className="rounded-lg border border-gray-200 px-3 py-2 text-sm" />
               <input type="text" name="specialty" required placeholder="Especialidad" className="rounded-lg border border-gray-200 px-3 py-2 text-sm" />
               <input type="text" name="linkUrl" placeholder="URL de redirección (default: Google)" className="rounded-lg border border-gray-200 px-3 py-2 text-sm" />
               <textarea name="bio" required placeholder="Biografía" className="col-span-full rounded-lg border border-gray-200 px-3 py-2 text-sm" rows={3} />
-              <button type="submit" disabled={loading === "add-doctor"} className="col-span-full rounded-lg bg-clinob-green px-5 py-2 text-sm font-medium text-white hover:bg-clinob-green-dark disabled:opacity-50">
+              <button type="submit" disabled={loading === "add-doctor"} className="col-span-full rounded-lg bg-clinob-primary px-5 py-2 text-sm font-medium text-white hover:bg-clinob-primary-dark disabled:opacity-50">
                 {loading === "add-doctor" ? "Agregando..." : "Agregar doctor"}
               </button>
             </form>
@@ -489,7 +489,7 @@ const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
                         />
                       </div>
                     ) : (
-                      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-clinob-green/20 to-clinob-blue/20 text-2xl font-bold text-clinob-green-dark">
+                      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-clinob-primary/20 to-clinob-accent/20 text-2xl font-bold text-clinob-primary-dark">
                         {doc.firstName[0]}{doc.lastName[0]}
                       </div>
                     )}
@@ -528,7 +528,7 @@ const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
                         className={`rounded-lg px-3 py-1.5 text-xs font-medium ${
                           uploadingPhoto === doc.id
                             ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                            : 'bg-clinob-green text-white hover:bg-clinob-green-dark'
+                            : 'bg-clinob-primary text-white hover:bg-clinob-primary-dark'
                         }`}
                       >
                         {uploadingPhoto === doc.id ? 'Subiendo...' : 'Subir'}
@@ -545,7 +545,7 @@ const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
                   <input name="linkUrl" defaultValue={doc.linkUrl} className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" placeholder="URL" />
                   <textarea name="bio" defaultValue={doc.bio} className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm" rows={3} />
                   <div className="flex gap-2">
-                    <button type="submit" disabled={loading === `edit-${doc.id}`} className="rounded-lg bg-clinob-green px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">
+                    <button type="submit" disabled={loading === `edit-${doc.id}`} className="rounded-lg bg-clinob-primary px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">
                       {loading === `edit-${doc.id}` ? "Guardando..." : "Guardar"}
                     </button>
                     <button type="button" onClick={() => setEditingDoctor(null)} className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600">Cancelar</button>
@@ -563,18 +563,18 @@ const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
                         />
                       </div>
                     ) : (
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-clinob-green/20 to-clinob-blue/20 text-sm font-bold text-clinob-green-dark">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-clinob-primary/20 to-clinob-accent/20 text-sm font-bold text-clinob-primary-dark">
                         {doc.firstName[0]}{doc.lastName[0]}
                       </div>
                     )}
                     <div>
                       <p className="font-semibold text-clinob-text">{doc.firstName} {doc.lastName}</p>
-                      <p className="text-xs text-clinob-green-dark">{doc.specialty}</p>
+                      <p className="text-xs text-clinob-primary-dark">{doc.specialty}</p>
                     </div>
                   </div>
                   <p className="text-xs text-clinob-text-light line-clamp-2">{doc.bio}</p>
                   <div className="mt-3 flex items-center gap-3">
-                    <button type="button" onClick={() => setEditingDoctor(doc.id)} className="text-xs font-medium text-clinob-blue-dark hover:underline">Editar</button>
+                    <button type="button" onClick={() => setEditingDoctor(doc.id)} className="text-xs font-medium text-clinob-accent-dark hover:underline">Editar</button>
                     <button type="button" onClick={() => { setConfirmDelete(doc.id); }} className="text-xs font-medium text-red-500 hover:underline">
                       {loading === `delete-${doc.id}` ? "Eliminando..." : "Eliminar"}
                     </button>

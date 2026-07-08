@@ -34,7 +34,7 @@ function LoginForm() {
               id="password"
               name="password"
               required
-              className="mt-1 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-clinob-text focus:border-clinob-green focus:outline-none focus:ring-2 focus:ring-clinob-green/20"
+              className="mt-1 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-clinob-text focus:border-clinob-accent focus:outline-none focus:ring-2 focus:ring-clinob-accent/20"
               placeholder="Ingresa la contraseña"
               autoFocus
             />
@@ -48,7 +48,7 @@ function LoginForm() {
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-clinob-green px-6 py-3 font-semibold text-white shadow-sm transition-all hover:bg-clinob-green-dark"
+            className="w-full rounded-xl bg-clinob-primary px-6 py-3 font-semibold text-white shadow-sm transition-all hover:bg-clinob-primary-dark"
           >
             Ingresar
           </button>

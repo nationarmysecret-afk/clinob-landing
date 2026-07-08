@@ -22,7 +22,7 @@ export default async function DashboardLayout({
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <a
             href="/admin/dashboard"
-            className="text-lg font-bold text-clinob-green"
+            className="text-lg font-bold text-clinob-primary"
           >
             CLINOB — Admin
           </a>
@@ -30,7 +30,7 @@ export default async function DashboardLayout({
             <a
               href="/"
               target="_blank"
-              className="text-sm text-clinob-blue-dark hover:underline"
+              className="text-sm text-clinob-accent-dark hover:underline"
             >
               Ver página
             </a>

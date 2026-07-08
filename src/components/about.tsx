@@ -25,9 +25,9 @@ export function About() {
     <section className="bg-white py-20 md:py-28" id="about">
       <div className="mx-auto max-w-4xl px-6 text-center">
         <h2 className="text-3xl font-bold text-clinob-text md:text-4xl">
-          <span className="text-clinob-green">{data?.title || "Sobre CLINOB"}</span>
+          <span className="text-clinob-primary">{data?.title || "Sobre CLINOB"}</span>
         </h2>
-        <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-gradient-to-r from-clinob-green to-clinob-blue" />
+        <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-gradient-to-r from-clinob-primary to-clinob-accent" />
         <p className="mt-8 text-lg leading-relaxed text-clinob-text-light md:text-xl">
           {data?.description || "En CLINOB — Clínica de Nutrición y Obesidad, reunimos a un equipo multidisciplinario de 10 especialistas comprometidos con tu salud. Creemos en un enfoque integral que combina nutrición, medicina, psicología y actividad física para ayudarte a alcanzar el bienestar en cada paso."}
         </p>

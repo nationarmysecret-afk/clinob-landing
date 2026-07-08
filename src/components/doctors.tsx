@@ -33,9 +33,9 @@ export function Doctors() {
       <div className="mx-auto max-w-6xl px-6">
         <h2 className="text-center text-3xl font-bold text-clinob-text md:text-4xl">
           Nuestro equipo de{" "}
-          <span className="text-clinob-green">especialistas</span>
+          <span className="text-clinob-primary">especialistas</span>
         </h2>
-        <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-gradient-to-r from-clinob-green to-clinob-blue" />
+        <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-gradient-to-r from-clinob-primary to-clinob-accent" />
 
         {/* Grid layout: varies by count */}
         <div
@@ -74,15 +74,15 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
           />
         </div>
       ) : (
-        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-clinob-green/20 to-clinob-blue/20 text-2xl font-bold text-clinob-green-dark transition-all group-hover:from-clinob-green/30 group-hover:to-clinob-blue/30">
+        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-clinob-primary/20 to-clinob-accent/20 text-2xl font-bold text-clinob-primary-dark transition-all group-hover:from-clinob-primary/30 group-hover:to-clinob-accent/30">
           {initials}
         </div>
       )}
 
-      <h3 className="mt-4 text-lg font-semibold text-clinob-text transition-colors group-hover:text-clinob-blue-dark">
+      <h3 className="mt-4 text-lg font-semibold text-clinob-text transition-colors group-hover:text-clinob-accent-dark">
         {doctor.firstName} {doctor.lastName}
       </h3>
-      <p className="mt-1 text-sm font-medium text-clinob-green-dark">
+      <p className="mt-1 text-sm font-medium text-clinob-primary-dark">
         {doctor.specialty}
       </p>
       <p className="mt-3 text-sm leading-relaxed text-clinob-text-light">

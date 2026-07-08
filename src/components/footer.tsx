@@ -2,7 +2,7 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gradient-to-r from-clinob-green/90 to-clinob-blue/90 py-8 text-white">
+    <footer className="bg-gradient-to-r from-clinob-primary/90 to-clinob-accent/90 py-8 text-white">
       <div className="mx-auto max-w-6xl px-6 text-center">
         <p className="text-lg font-semibold">
           CLINOB — Clínica de Nutrición y Obesidad
