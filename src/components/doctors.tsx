@@ -31,10 +31,21 @@ export function Doctors() {
   if (activeDoctors.length === 0) return null;
 
   return (
-    <section className="bg-gradient-to-b from-white via-clinob-primary-light/30 to-white py-20 md:py-28 relative overflow-hidden" id="doctors">
-      {/* Decorative background blobs */}
-      <div className="absolute top-1/4 -left-32 h-64 w-64 rounded-full bg-clinob-accent/[0.04] blur-3xl" />
-      <div className="absolute bottom-1/4 -right-32 h-64 w-64 rounded-full bg-clinob-primary/[0.04] blur-3xl" />
+    <section className="relative overflow-hidden py-20 md:py-28" id="doctors">
+      {/* Innovative mesh gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-clinob-primary/[0.02] via-white to-clinob-accent/[0.02]" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-clinob-accent/20 to-transparent" />
+
+      {/* Floating geometric blobs */}
+      <div className="absolute top-10 left-1/4 h-72 w-72 rounded-full bg-gradient-to-br from-clinob-primary/8 to-clinob-accent/5 blur-[100px] animate-float" />
+      <div className="absolute bottom-20 right-1/4 h-56 w-56 rounded-full bg-gradient-to-tl from-clinob-accent/8 to-clinob-primary/5 blur-[100px] animate-float" style={{ animationDelay: "-3s" }} />
+      <div className="absolute top-1/3 right-10 h-40 w-40 rounded-full bg-clinob-primary/[0.04] blur-[80px] animate-float" style={{ animationDelay: "-1.5s" }} />
+
+      {/* Subtle grid pattern overlay */}
+      <div className="absolute inset-0 opacity-[0.015]" style={{
+        backgroundImage: `radial-gradient(circle at 1px 1px, ${'#2C4A7C'} 1px, transparent 0)`,
+        backgroundSize: '40px 40px'
+      }} />
 
       <div className="relative mx-auto max-w-6xl px-6">
         <div className={`text-center transition-all duration-1000 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}>
@@ -73,13 +84,13 @@ function DoctorCard({ doctor, index, loaded }: { doctor: Doctor; index: number; 
       href={doctor.linkUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className={`group relative flex flex-col items-center rounded-3xl bg-white/80 backdrop-blur-sm p-7 text-center border border-gray-100/50 shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-clinob-primary/10 hover:border-clinob-accent/40 active:scale-[0.96] ${
+      className={`group relative flex flex-col items-center rounded-3xl bg-white/90 backdrop-blur-sm p-7 text-center border border-gray-100 shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-clinob-primary/15 hover:border-clinob-accent/30 active:scale-[0.96] ${
         loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"
       }`}
       style={{ transitionDelay: `${200 + index * 100}ms` }}
     >
       {/* Glow effect on hover */}
-      <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-clinob-accent/[0.02] to-clinob-primary/[0.02] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+      <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-clinob-accent/[0.03] to-clinob-primary/[0.03] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
       {doctor.photoUrl ? (
         <div className="relative h-28 w-28 overflow-hidden rounded-full ring-2 ring-gray-100 transition-all duration-500 group-hover:ring-clinob-accent/50 group-hover:shadow-xl group-hover:shadow-clinob-accent/20">
@@ -106,12 +117,14 @@ function DoctorCard({ doctor, index, loaded }: { doctor: Doctor; index: number; 
         {doctor.bio}
       </p>
 
-      {/* Subtle indicator */}
-      <div className="relative z-10 mt-4 flex items-center gap-1.5 text-xs font-medium text-clinob-accent/0 transition-all duration-500 group-hover:text-clinob-accent">
-        <span>Agendar cita</span>
-        <svg className="h-3.5 w-3.5 transition-transform duration-500 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
+      {/* Button-style "Agendar cita" */}
+      <div className="relative z-10 mt-5 w-full">
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-clinob-accent/30 bg-gradient-to-r from-clinob-accent/5 to-clinob-primary/5 px-4 py-2.5 text-xs font-semibold text-clinob-accent-dark transition-all duration-500 group-hover:from-clinob-accent group-hover:to-clinob-accent-dark group-hover:text-white group-hover:shadow-lg group-hover:shadow-clinob-accent/25 group-hover:scale-105">
+          <span>Agendar cita</span>
+          <svg className="h-4 w-4 transition-all duration-500 group-hover:translate-x-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
       </div>
     </a>
   );
