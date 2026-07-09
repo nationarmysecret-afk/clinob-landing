@@ -18,6 +18,7 @@ interface Doctor {
 export function Doctors() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
 
   useEffect(() => {
     fetch("/api/doctors")
@@ -68,22 +69,22 @@ export function Doctors() {
           }`}
         >
           {activeDoctors.map((doctor, i) => (
-            <DoctorCard key={doctor.id} doctor={doctor} index={i} loaded={loaded} />
+            <DoctorCard key={doctor.id} doctor={doctor} index={i} loaded={loaded} onInfoClick={() => setSelectedDoctor(doctor)} />
           ))}
         </div>
       </div>
+
+      {/* Doctor Info Modal */}
+      <DoctorModal doctor={selectedDoctor} onClose={() => setSelectedDoctor(null)} />
     </section>
   );
 }
 
-function DoctorCard({ doctor, index, loaded }: { doctor: Doctor; index: number; loaded: boolean }) {
+function DoctorCard({ doctor, index, loaded, onInfoClick }: { doctor: Doctor; index: number; loaded: boolean; onInfoClick: () => void }) {
   const initials = `${doctor.firstName[0]}${doctor.lastName[0]}`;
 
   return (
-    <a
-      href={doctor.linkUrl}
-      target="_blank"
-      rel="noopener noreferrer"
+    <div
       className={`group relative flex flex-col items-center rounded-3xl bg-white/90 backdrop-blur-sm p-7 text-center border border-gray-100 shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-clinob-primary/15 hover:border-clinob-accent/30 active:scale-[0.96] ${
         loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"
       }`}
@@ -113,19 +114,108 @@ function DoctorCard({ doctor, index, loaded }: { doctor: Doctor; index: number; 
       <p className="relative z-10 mt-1 text-sm font-medium text-clinob-primary-dark/80">
         {doctor.specialty}
       </p>
-      <p className="relative z-10 mt-3 text-sm leading-relaxed text-clinob-text-light/80 line-clamp-2">
+      <p className="relative z-10 mt-3 text-sm leading-relaxed text-clinob-text-light/80 line-clamp-2 flex-1">
         {doctor.bio}
       </p>
 
-      {/* Button-style "Agendar cita" */}
-      <div className="relative z-10 mt-5 w-full">
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-clinob-accent/30 bg-gradient-to-r from-clinob-accent/5 to-clinob-primary/5 px-4 py-2.5 text-xs font-semibold text-clinob-accent-dark transition-all duration-500 group-hover:from-clinob-accent group-hover:to-clinob-accent-dark group-hover:text-white group-hover:shadow-lg group-hover:shadow-clinob-accent/25 group-hover:scale-105">
-          <span>Agendar cita</span>
+      {/* Button forced to bottom with mt-auto */}
+      <div className="relative z-10 mt-auto w-full pt-5">
+        <button
+          onClick={onInfoClick}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-clinob-accent/30 bg-gradient-to-r from-clinob-accent/5 to-clinob-primary/5 px-4 py-2.5 text-xs font-semibold text-clinob-accent-dark transition-all duration-500 hover:from-clinob-accent hover:to-clinob-accent-dark hover:text-white hover:shadow-lg hover:shadow-clinob-accent/25 hover:scale-105 active:scale-95"
+        >
+          <span>Más Información</span>
           <svg className="h-4 w-4 transition-all duration-500 group-hover:translate-x-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
           </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DoctorModal({ doctor, onClose }: { doctor: Doctor | null; onClose: () => void }) {
+  if (!doctor) return null;
+
+  const initials = `${doctor.firstName[0]}${doctor.lastName[0]}`;
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-lg rounded-3xl bg-white shadow-2xl overflow-hidden animate-fadeInUp"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Top gradient bar */}
+        <div className="h-1.5 bg-gradient-to-r from-clinob-primary to-clinob-accent" />
+
+        <div className="p-8">
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-all hover:bg-gray-200 hover:text-gray-600"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {/* Doctor photo */}
+          <div className="flex justify-center">
+            {doctor.photoUrl ? (
+              <div className="relative h-28 w-28 overflow-hidden rounded-full ring-4 ring-clinob-accent/20 shadow-xl">
+                <Image
+                  src={doctor.photoUrl}
+                  alt={`${doctor.firstName} ${doctor.lastName}`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-clinob-primary/10 to-clinob-accent/10 text-3xl font-bold text-clinob-primary-dark ring-4 ring-clinob-accent/20 shadow-xl">
+                {initials}
+              </div>
+            )}
+          </div>
+
+          {/* Name and specialty */}
+          <div className="mt-5 text-center">
+            <h3 className="text-2xl font-bold text-clinob-text">
+              {doctor.firstName} {doctor.lastName}
+            </h3>
+            <p className="mt-1 text-base font-medium text-clinob-accent-dark">
+              {doctor.specialty}
+            </p>
+          </div>
+
+          {/* Divider */}
+          <div className="mx-auto mt-5 h-px w-16 bg-gradient-to-r from-clinob-primary to-clinob-accent" />
+
+          {/* Full bio */}
+          <div className="mt-5">
+            <p className="text-sm leading-relaxed text-clinob-text-light">
+              {doctor.bio}
+            </p>
+          </div>
+
+          {/* Agendar Cita button */}
+          <div className="mt-8">
+            <a
+              href={doctor.linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-clinob-primary to-clinob-primary-dark px-6 py-4 text-base font-semibold text-white shadow-lg transition-all duration-500 hover:shadow-2xl hover:shadow-clinob-primary/40 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <span>Agendar Cita</span>
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
-    </a>
+    </div>
   );
 }
